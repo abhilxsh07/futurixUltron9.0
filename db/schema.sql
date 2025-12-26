@@ -41,3 +41,17 @@ CREATE TABLE projects (
   updated_at DATETIME NOT NULL,
   FOREIGN KEY (created_by_user_id) REFERENCES users(id)
 );
+
+CREATE TABLE project_likes (
+  project_id INT NOT NULL,
+  user_id INT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (project_id, user_id),
+  INDEX idx_project_likes_user_id (user_id),
+  CONSTRAINT fk_project_likes_project
+    FOREIGN KEY (project_id) REFERENCES projects(id)
+    ON DELETE CASCADE,
+  CONSTRAINT fk_project_likes_user
+    FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
