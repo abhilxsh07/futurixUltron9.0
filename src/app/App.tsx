@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom"
+import  { Route, Routes } from "react-router-dom"
 import Navbar from "../components/Navbar"
 import ParallaxBackground from "../components/ParallaxBackground"
 import Overview from "../pages/Overview"
