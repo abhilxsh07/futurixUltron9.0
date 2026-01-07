@@ -1,19 +1,51 @@
 # Ultron 9.0 Hackathon App
 
-Ultron 9.0 is a full-stack hackathon submission platform for Futurix. It includes a Vite React frontend, PHP API endpoints on Vercel, and a MySQL database with invite-only authentication.
+Ultron 9.0 is a full-stack hackathon submission platform for Futurix. It includes a Vite + React frontend, a PHP API, and a MySQL database with invite-only authentication.
+
+## What it does
+
+### Authentication & Roles
+- Invite-only sign-in (email + password)
+- Cookie-based sessions (`ultron_session`) backed by a `sessions` table
+- Roles:
+  - `participant`
+  - `admin`
+
+### Projects
+- Public browsing shows **approved** projects
+- Signed-in participants can also view their **own** non-approved projects
+- Admins can view all projects
+- Submission + editing rules:
+  - Participants can **create** projects only before the deadline
+  - Participants can **edit** only before the deadline **and** only while their project is `pending`
+  - Admins can create/edit anytime (deadline bypass)
+
+### Moderation (Admin)
+- Update project status: `pending` / `approved` / `hidden`
+- Delete projects (admin-only)
+- Export projects CSV
+- User management:
+  - Create users (invite users)
+  - Reset passwords
+  - List users
+
+### Likes
+- Like / Unlike projects (signed-in users only: participants + admins)
+- Uses a `project_likes` table to prevent duplicate likes per user
+- Project list endpoint returns `viewer_liked` when signed in
 
 ## Stack
 
 - React + Vite + TypeScript
 - TailwindCSS
-- PHP (vercel-community/php runtime)
-- MySQL with PDO
+- PHP 8.1+ (API)
+- MySQL 8+ with PDO
 
 ## Project Structure
 
-- api: PHP endpoints and shared helpers
-- db: MySQL schema and seed
-- src: React application
+- `api/` — PHP endpoints + shared helpers
+- `db/` — MySQL schema and seed
+- `src/` — React application
 
 ## Requirements
 
@@ -25,78 +57,25 @@ Ultron 9.0 is a full-stack hackathon submission platform for Futurix. It include
 
 Copy `.env.example` to `.env` and fill in:
 
-- MYSQL_HOST
-- MYSQL_PORT
-- MYSQL_DATABASE
-- MYSQL_USER
-- MYSQL_PASSWORD
-- TURNSTILE_SITE_KEY
-- TURNSTILE_SECRET_KEY
-- VITE_TURNSTILE_SITE_KEY
-- SUBMISSION_DEADLINE_ISO
-- APP_BASE_URL
+### Database
+- `MYSQL_HOST`
+- `MYSQL_PORT`
+- `MYSQL_DATABASE`
+- `MYSQL_USER`
+- `MYSQL_PASSWORD`
 
-`SUBMISSION_DEADLINE_ISO` can be empty or omitted to allow edits with a `Deadline: TBD` UI.
+### App
+- `SUBMISSION_DEADLINE_ISO` (optional; ISO string, e.g. `2026-01-15T18:30:00+05:30`)
+- `APP_BASE_URL` (optional; useful in some hosting setups)
+
+`SUBMISSION_DEADLINE_ISO` can be empty or omitted to allow submissions/edits with a `Deadline: TBD` UI.
+
 
 ## Database Setup
 
 1. Create the database.
 2. Apply schema and seed data.
 
-```
+```bash
 mysql -u root -p < db/schema.sql
 mysql -u root -p < db/seed.sql
-```
-
-Seed data includes an admin account:
-
-- Email: admin@futurix.io
-- Password: AdminPass123!
-
-## Local Development
-
-### MySQL via Docker
-
-```
-docker-compose up -d
-```
-
-### PHP API
-
-```
-php -S localhost:8000 -t api
-```
-
-### Frontend
-
-```
-npm install
-npm run dev
-```
-
-Vite proxies `/api` to `http://localhost:8000`.
-
-## Build
-
-```
-npm run build
-```
-
-## Deployment (Vercel)
-
-1. Set environment variables in Vercel.
-2. Deploy the repository.
-3. The `vercel.json` file configures PHP API endpoints and SPA routing.
-
-## Admin Features
-
-- Create users
-- Reset passwords
-- Moderate projects
-- Export CSV
-
-## Participant Flow
-
-- Sign in via invite-only account
-- Submit project
-- Edit project before deadline
